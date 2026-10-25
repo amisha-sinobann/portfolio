@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amisha Singh | AI/ML Researcher & Engineer Portfolio</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            neonCyan: '#00f3ff',
+            neonGreen: '#00ffaa',
+            neonPurple: '#9d4edd',
+            cyberDark: '#070b14',
+            cyberGlass: 'rgba(13, 22, 41, 0.75)',
+          },
+          fontFamily: {
+            mono: ['Fira Code', 'monospace'],
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- FontAwesome & Google Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  
+  <!-- Three.js & Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #070b14;
+      color: #e2e8f0;
+      overflow-x: hidden;
+    }
+    canvas#bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: auto;
+    }
+    .glass-panel {
+      background: rgba(13, 22, 41, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0, 243, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    }
+    .glass-card {
+      background: rgba(18, 28, 51, 0.6);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-card:hover {
+      border-color: rgba(0, 243, 255, 0.5);
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.25);
+      transform: translateY(-3px);
+    }
+    .neon-text-cyan {
+      text-shadow: 0 0 10px rgba(0, 243, 255, 0.6);
+    }
+    .neon-text-green {
+      text-shadow: 0 0 10px rgba(0, 255, 170, 0.6);
+    }
+    .glow-btn {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .glow-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(0, 243, 255, 0.4) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .glow-btn:hover::before {
+      opacity: 1;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #070b14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #00f3ff55;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #00f3ff;
+    }
+    /* Pulse Audio Visualizer Bar */
+    .audio-bar {
+      animation: soundPulse 1.2s infinite ease-in-out alternate;
+    }
+    @keyframes soundPulse {
+      0% { height: 4px; }
+      100% { height: 28px; }
+    }
+  </style>
+</head>
+<body class="relative select-none text-slate-200">
+
+  <!-- Three.js Canvas Engine Background -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Interactive HUD Overlay Top Nav -->
+  <header class="fixed top-0 left-0 right-0 z-40 p-4">
+    <div class="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="sfx.play('click'); resetCamera();">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 p-[2px]">
+          <div class="w-full h-full bg-cyberDark rounded-[10px] flex items-center justify-center font-mono font-bold text-neonCyan">
+            AS
+          </div>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg tracking-wide text-white flex items-center gap-2">
+            Amisha Singh 
+            <span class="text-xs px-2 py-0.5 rounded-full bg-cyan-950 text-neonCyan border border-cyan-500/40 font-mono">B.Tech CSE (AI & ML Specialization)</span>
+          </h1>
+          <p class="text-xs text-slate-400 font-mono">The NorthCap University • AI & ML Specialization</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links & 3D Mode Selector -->
+      <nav class="hidden lg:flex items-center space-x-6 text-sm font-medium">
+        <button onclick="scrollToSection('lab-simulators')" class="hover:text-neonCyan transition">Simulators</button>
+        <button onclick="scrollToSection('projects-section')" class="hover:text-neonCyan transition">Projects</button>
+        <button onclick="scrollToSection('research-papers')" class="hover:text-neonCyan transition">Publications</button>
+        <button onclick="scrollToSection('patents-section')" class="hover:text-neonCyan transition">Patents</button>
+        <button onclick="scrollToSection('experience-section')" class="hover:text-neonCyan transition">Experience</button>
+        <button onclick="scrollToSection('copilot-section')" class="hover:text-neonCyan transition">Gemini AI</button>
+      </nav>
+
+      <!-- Top Interactive Tools -->
+      <div class="flex items-center space-x-3">
+        <!-- 3D Environment Mode Toggle -->
+        <div class="relative bg-slate-900/80 rounded-xl p-1 border border-slate-700 flex text-xs">
+          <button id="btn-mode-grid" onclick="change3DMode('grid')" class="px-2.5 py-1 rounded-lg bg-cyan-500/20 text-neonCyan font-mono transition">Grid</button>
+          <button id="btn-mode-algae" onclick="change3DMode('algae')" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-mono transition">Bio-Algae</button>
+          <button id="btn-mode-swarm" onclick="change3DMode('swarm')" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-mono transition">Swarm</button>
+        </div>
+
+        <!-- Terminal Trigger -->
+        <button onclick="toggleTerminal()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-neonGreen border border-emerald-500/30 transition" title="Open Hacker CLI (Press `)">
+          <i class="fa-solid fa-terminal text-sm"></i>
+        </button>
+
+        <!-- Sound FX Mute/Unmute -->
+        <button id="sound-btn" onclick="sfx.toggleMute()" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-neonCyan border border-cyan-500/30 transition">
+          <i id="sound-icon" class="fa-solid fa-volume-high text-sm"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Scrollable Content Overlay -->
+  <main class="relative z-10 pt-28 pb-16 px-4 md:px-8 max-w-7xl mx-auto space-y-24">
+
+    <!-- HERO SECTION -->
+    <section class="min-h-[80vh] flex flex-col justify-center items-start space-y-6 pt-8">
+      <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-neonCyan text-xs font-mono">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        <span>Open for AI Research & ML Engineering Roles</span>
+      </div>
+
+      <div class="space-y-3 max-w-3xl">
+        <h2 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          Architecting <span class="text-transparent bg-clip-text bg-gradient-to-r from-neonCyan via-teal-300 to-neonGreen">Agentic Intelligence</span> & Quantum Bio-AI
+        </h2>
+        <p class="text-slate-300 text-lg md:text-xl font-light leading-relaxed">
+          Specialized in <strong class="text-neonCyan font-normal">Artificial Intelligence & Machine Learning</strong>. Pioneering research in <strong class="text-neonCyan font-normal">Multi-Agent Systems</strong>, <strong class="text-neonGreen font-normal">Bio-Algae Micro-Simulations</strong>, & <strong class="text-neonPurple font-normal">Quantum NLP</strong>.
+        </p>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-3xl pt-2">
+        <div class="glass-card p-4 rounded-xl border-l-4 border-l-cyan-400">
+          <div class="text-2xl font-bold font-mono text-white">2 Patents</div>
+          <div class="text-xs text-slate-400">ALVORA & Algae Systems</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl border-l-4 border-l-emerald-400">
+          <div class="text-2xl font-bold font-mono text-white">5 Papers</div>
+          <div class="text-xs text-slate-400">Under Review (Springer/Discovery)</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl border-l-4 border-l-purple-400">
+          <div class="text-2xl font-bold font-mono text-white">SIH '25</div>
+          <div class="text-xs text-slate-400">National Finalist & Rank 1</div>
+        </div>
+        <div class="glass-card p-4 rounded-xl border-l-4 border-l-teal-400">
+          <div class="text-2xl font-bold font-mono text-white">AWS Scholar</div>
+          <div class="text-xs text-slate-400">AI & ML Scholar Recipient</div>
+        </div>
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-wrap gap-4 pt-4">
+        <button onclick="scrollToSection('lab-simulators')" class="glow-btn bg-gradient-to-r from-cyan-500 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-bold px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition">
+          <i class="fa-solid fa-flask"></i> Launch Interactive Lab
+        </button>
+        <button onclick="scrollToSection('copilot-section')" class="glass-card text-white hover:text-neonCyan px-6 py-3 rounded-xl border border-slate-700 flex items-center gap-2 font-medium transition">
+          <i class="fa-solid fa-robot text-neonGreen"></i> Ask Gemini Assistant
+        </button>
+        <a href="https://linkedin.com/in/amishas-149515281" target="_blank" class="p-3 rounded-xl glass-card text-slate-300 hover:text-neonCyan transition">
+          <i class="fa-brands fa-linkedin text-xl"></i>
+        </a>
+        <a href="https://github.com/amisha-sinobann" target="_blank" class="p-3 rounded-xl glass-card text-slate-300 hover:text-neonCyan transition">
+          <i class="fa-brands fa-github text-xl"></i>
+        </a>
+      </div>
+    </section>
+
+    <!-- SECTION 1: INTERACTIVE RESEARCH LAB & SIMULATOR PLAYGROUNDS -->
+    <section id="lab-simulators" class="space-y-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="text-3xl font-bold text-white flex items-center gap-3">
+            <i class="fa-solid fa-vial-circle-check text-neonCyan"></i> Interactive Research Lab
+          </h3>
+          <p class="text-slate-400 text-sm mt-1">Real-time dynamic execution engines for Amisha's patented models and architecture designs.</p>
+        </div>
+        <!-- Simulator Nav Tabs -->
+        <div class="flex space-x-2 mt-4 md:mt-0 font-mono text-xs">
+          <button onclick="switchLabTab('alvora')" id="tab-btn-alvora" class="px-4 py-2 rounded-xl bg-cyan-500/20 text-neonCyan border border-cyan-500/40">1. ALVORA Simulator</button>
+          <button onclick="switchLabTab('vision')" id="tab-btn-vision" class="px-4 py-2 rounded-xl glass-card text-slate-400 hover:text-white">2. VisionAgent AI</button>
+          <button onclick="switchLabTab('nas')" id="tab-btn-nas" class="px-4 py-2 rounded-xl glass-card text-slate-400 hover:text-white">3. EffTransNAS NAS</button>
+        </div>
+      </div>
+
+      <!-- SIMULATOR MODULE 1: ALVORA BIO-PURIFICATION ENGINE -->
+      <div id="sim-alvora" class="glass-panel rounded-2xl p-6 border border-cyan-500/30 space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Control Panel -->
+          <div class="space-y-5 bg-slate-900/60 p-5 rounded-xl border border-slate-800">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold text-lg text-white font-mono flex items-center gap-2">
+                <i class="fa-solid fa-leaf text-neonGreen"></i> ALVORA Controls
+              </h4>
+              <span class="text-[10px] bg-emerald-950 text-neonGreen border border-emerald-500/40 px-2 py-0.5 rounded">Patent #202611066825</span>
+            </div>
+            
+            <div class="space-y-4 text-xs font-mono">
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1">
+                  <span>Airflow Rate (L/min):</span>
+                  <span id="val-airflow" class="text-neonCyan font-bold">45</span>
+                </div>
+                <input type="range" id="slider-airflow" min="10" max="100" value="45" oninput="updateAlvoraSim()" class="w-full accent-cyan-400 cursor-pointer">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1">
+                  <span>CO2 Input Conc. (ppm):</span>
+                  <span id="val-co2" class="text-neonGreen font-bold">850</span>
+                </div>
+                <input type="range" id="slider-co2" min="350" max="2000" value="850" oninput="updateAlvoraSim()" class="w-full accent-emerald-400 cursor-pointer">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-slate-300 mb-1">
+                  <span>Chlorella Bio-Density (%):</span>
+                  <span id="val-density" class="text-neonPurple font-bold">78</span>
+                </div>
+                <input type="range" id="slider-density" min="20" max="100" value="78" oninput="updateAlvoraSim()" class="w-full accent-purple-400 cursor-pointer">
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-800 space-y-2 text-xs">
+              <div class="flex justify-between"><span class="text-slate-400">Purified Air AQI Output:</span> <span id="out-aqi" class="font-bold text-neonGreen">18 AQI (Good)</span></div>
+              <div class="flex justify-between"><span class="text-slate-400">Carbon Capture Rate:</span> <span id="out-capture" class="font-bold text-neonCyan">94.2 mg/hr</span></div>
+              <div class="flex justify-between"><span class="text-slate-400">Photosynthetic Efficacy:</span> <span id="out-efficiency" class="font-bold text-white">96.8%</span></div>
+            </div>
+          </div>
+
+          <!-- Dynamic Live Chart Visualizer -->
+          <div class="lg:col-span-2 bg-slate-900/60 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-mono text-slate-400">REAL-TIME BIO-PURIFICATION MONITORING CHART</span>
+              <span class="text-xs text-neonCyan font-mono">Simulated Live Feedback</span>
+            </div>
+            <div class="w-full h-64 relative">
+              <canvas id="alvoraChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIMULATOR MODULE 2: MULTI-AGENT VISIONAGENT DEMO -->
+      <div id="sim-vision" class="glass-panel rounded-2xl p-6 border border-cyan-500/30 hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Control & Agent Toggles -->
+          <div class="space-y-4 bg-slate-900/60 p-5 rounded-xl border border-slate-800 text-xs font-mono">
+            <h4 class="font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-eye text-neonCyan"></i> VisionAgent Swarm Controls
+            </h4>
+            <p class="text-slate-400 text-[11px] leading-relaxed">Toggle active autonomous vision sub-agents to analyze simulated live robotic camera feeds.</p>
+
+            <div class="space-y-2 pt-2">
+              <label class="flex items-center space-x-3 p-2 rounded-lg bg-slate-800/80 cursor-pointer hover:bg-slate-800">
+                <input type="checkbox" id="agent-ocr" checked onclick="renderVisionSim()" class="accent-cyan-400">
+                <span class="text-slate-200">Agent A: OCR & Document Extraction</span>
+              </label>
+              <label class="flex items-center space-x-3 p-2 rounded-lg bg-slate-800/80 cursor-pointer hover:bg-slate-800">
+                <input type="checkbox" id="agent-detect" checked onclick="renderVisionSim()" class="accent-emerald-400">
+                <span class="text-slate-200">Agent B: Real-time Object Bounding Box</span>
+              </label>
+              <label class="flex items-center space-x-3 p-2 rounded-lg bg-slate-800/80 cursor-pointer hover:bg-slate-800">
+                <input type="checkbox" id="agent-nav" checked onclick="renderVisionSim()" class="accent-purple-400">
+                <span class="text-slate-200">Agent C: Assistive Spatial Vector Nav</span>
+              </label>
+            </div>
+
+            <div class="pt-4 border-t border-slate-800 space-y-2">
+              <div class="flex justify-between"><span class="text-slate-400">Frame Processing Latency:</span><span id="vis-latency" class="text-neonGreen">14.2 ms</span></div>
+              <div class="flex justify-between"><span class="text-slate-400">Active Swarm Threads:</span><span id="vis-threads" class="text-neonCyan">3 Multi-Agents</span></div>
+              <div class="flex justify-between"><span class="text-slate-400">Model Inference Engine:</span><span class="text-slate-300">ViT-Small Hybrid</span></div>
+            </div>
+          </div>
+
+          <!-- Camera Stream Simulator Display -->
+          <div class="lg:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden">
+            <!-- Simulated Video Frame Canvas -->
+            <div id="vision-frame" class="w-full h-72 rounded-lg relative flex items-center justify-center bg-slate-900 border border-slate-800 overflow-hidden">
+              <!-- Overlay Bounding Boxes Dynamic HTML -->
+              <div id="vision-overlays" class="absolute inset-0 pointer-events-none"></div>
+
+              <div class="text-center space-y-2 z-10">
+                <i class="fa-solid fa-microchip text-4xl text-cyan-500/40 animate-pulse"></i>
+                <div class="text-xs font-mono text-slate-500">SIMULATED LIVE ROBOTIC VISION STREAM</div>
+              </div>
+
+              <!-- HUD Diagnostics -->
+              <div class="absolute top-2 left-2 text-[10px] font-mono bg-black/70 px-2 py-1 rounded text-emerald-400 border border-emerald-500/30">
+                FPS: 60 | AGENT_SYNC: OK
+              </div>
+            </div>
+
+            <!-- Spatial Log Stream -->
+            <div class="w-full mt-3 bg-slate-900 p-2.5 rounded-lg border border-slate-800 font-mono text-[11px] text-slate-400 h-20 overflow-y-auto space-y-1" id="vision-log">
+              <div class="text-cyan-400">[SYSTEM]: VisionAgent Swarm initialized...</div>
+              <div class="text-emerald-400">[Agent B]: Detected 'Bio-Algae Reactor Tank' (Conf: 99.4%)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIMULATOR MODULE 3: LowRes-EffTransNAS PLAYGROUND -->
+      <div id="sim-nas" class="glass-panel rounded-2xl p-6 border border-cyan-500/30 hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="space-y-4 bg-slate-900/60 p-5 rounded-xl border border-slate-800 text-xs font-mono">
+            <h4 class="font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-sitemap text-neonPurple"></i> Neural Architecture NAS
+            </h4>
+            <p class="text-slate-400 text-[11px]">Build lightweight custom Transformer backbones for resource-constrained edge devices.</p>
+
+            <div class="space-y-3 pt-2">
+              <div>
+                <label class="text-slate-300 block mb-1">Attention Heads: <span id="nas-heads-val" class="text-neonCyan">8</span></label>
+                <input type="range" id="nas-heads" min="2" max="16" step="2" value="8" oninput="updateNAS()" class="w-full accent-cyan-400">
+              </div>
+
+              <div>
+                <label class="text-slate-300 block mb-1">Transformer Layers: <span id="nas-layers-val" class="text-neonGreen">6</span></label>
+                <input type="range" id="nas-layers" min="2" max="12" value="6" oninput="updateNAS()" class="w-full accent-emerald-400">
+              </div>
+
+              <div>
+                <label class="text-slate-300 block mb-1">Embedding Dim: <span id="nas-embed-val" class="text-neonPurple">256</span></label>
+                <input type="range" id="nas-embed" min="128" max="512" step="64" value="256" oninput="updateNAS()" class="w-full accent-purple-400">
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic Calculation Output -->
+          <div class="lg:col-span-2 bg-slate-900/60 p-6 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <div>
+              <h5 class="font-mono text-xs text-slate-400 mb-4">COMPUTED MODEL TRAJECTORY & METRICS</h5>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center">
+                  <div class="text-xs text-slate-400">Parameters</div>
+                  <div id="nas-out-params" class="text-lg font-bold font-mono text-neonCyan">4.2M</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center">
+                  <div class="text-xs text-slate-400">Edge Latency</div>
+                  <div id="nas-out-lat" class="text-lg font-bold font-mono text-neonGreen">8.4 ms</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center">
+                  <div class="text-xs text-slate-400">Pareto Accuracy</div>
+                  <div id="nas-out-acc" class="text-lg font-bold font-mono text-neonPurple">91.8%</div>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center">
+                  <div class="text-xs text-slate-400">RAM Memory</div>
+                  <div id="nas-out-ram" class="text-lg font-bold font-mono text-amber-400">18.5 MB</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pareto Frontier Visual Bar -->
+            <div class="space-y-2">
+              <div class="flex justify-between text-xs font-mono text-slate-400">
+                <span>Optimization Score:</span>
+                <span id="nas-score" class="text-neonGreen">Optimal Edge Balance</span>
+              </div>
+              <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800">
+                <div id="nas-progress" class="h-full bg-gradient-to-r from-cyan-400 via-emerald-400 to-purple-500 transition-all duration-300" style="width: 82%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 2: FEATURED PROJECTS & ENGINEERING WORK -->
+    <section id="projects-section" class="space-y-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="text-3xl font-bold text-white flex items-center gap-3">
+            <i class="fa-solid fa-code-branch text-neonCyan"></i> Featured Engineering Projects
+          </h3>
+          <p class="text-slate-400 text-sm mt-1">End-to-end AI systems, open-source models, and deployed software solutions.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Project 1 -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-neonCyan bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">PyTorch • Multi-Agent</span>
+              <i class="fa-solid fa-robot text-neonCyan"></i>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-neonCyan transition">
+              VisionAgent Swarm Platform
+            </h4>
+            <p class="text-slate-300 text-sm">
+              Modular Python engine coordinating autonomous sub-agents for real-time video stream analysis, document parsing, and spatial navigation vectors.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-400">SIH Top Rank Demo</span>
+            <a href="https://github.com/amisha-sinobann" target="_blank" class="text-neonCyan hover:underline flex items-center gap-1">Source Code <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-neonGreen bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">Bio-AI • IoT Simulation</span>
+              <i class="fa-solid fa-seedling text-neonGreen"></i>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-neonGreen transition">
+              ALVORA Bio-Control Engine
+            </h4>
+            <p class="text-slate-300 text-sm">
+              Hardware-in-the-loop simulation framework modeling micro-algae growth curves and carbon capture throughput with micro-fluidic feedback controls.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-400">Patented System</span>
+            <a href="https://github.com/amisha-sinobann" target="_blank" class="text-neonGreen hover:underline flex items-center gap-1">Repository <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-neonPurple bg-purple-950/80 px-2 py-0.5 rounded border border-purple-500/30">Qiskit • NLP</span>
+              <i class="fa-solid fa-atom text-neonPurple"></i>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-neonPurple transition">
+              Quantum Semantic Disambiguator
+            </h4>
+            <p class="text-slate-300 text-sm">
+              Hybrid classical-quantum pipeline using variational circuits to compute complex semantic similarity and disambiguation for high-dimensional text.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-400">Research Codebase</span>
+            <a href="https://github.com/amisha-sinobann" target="_blank" class="text-neonPurple hover:underline flex items-center gap-1">Explore <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+          </div>
+        </div>
+
+        <!-- Project 4 -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/30">NAS • Edge ViT</span>
+              <i class="fa-solid fa-sitemap text-amber-400"></i>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-amber-400 transition">
+              LowRes-EffTransNAS Engine
+            </h4>
+            <p class="text-slate-300 text-sm">
+              Automated neural architecture search framework optimizing vision transformer layers and embedding dimensions for low-power edge platforms.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-400">Paper Artifact</span>
+            <a href="https://github.com/amisha-sinobann" target="_blank" class="text-amber-400 hover:underline flex items-center gap-1">Repository <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+          </div>
+        </div>
+
+        <!-- Project 5 -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-teal-300 bg-teal-950/80 px-2 py-0.5 rounded border border-teal-500/30">Predictive Healthcare • ML</span>
+              <i class="fa-solid fa-heart-pulse text-teal-300"></i>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-teal-300 transition">
+              Early Sepsis Deterioration Monitor
+            </h4>
+            <p class="text-slate-300 text-sm">
+              Clinical early-warning pipeline using time-series transformer models to predict physiological deterioration and sepsis onset in ICU patients.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-400">NCU Research Lab</span>
+            <a href="https://github.com/amisha-sinobann" target="_blank" class="text-teal-300 hover:underline flex items-center gap-1">Source Code <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+          </div>
+        </div>
+
+        <!-- Project 6 -->
+        <div class="glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-indigo-400 bg-indigo-950/80 px-2 py-0.5 rounded border border-indigo-500/30">Industrial AI • Anomaly</span>
+              <i class="fa-solid fa-industry text-indigo-400"></i>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-indigo-400 transition">
+              Industrial Anomaly Sentinel
+            </h4>
+            <p class="text-slate-300 text-sm">
+              IoT edge anomaly detection suite utilizing autoencoders and recurrent neural networks for real-time predictive maintenance of industrial equipment.
+            </p>
+          </div>
+          <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-400">JD Engineering Internship</span>
+            <a href="https://github.com/amisha-sinobann" target="_blank" class="text-indigo-400 hover:underline flex items-center gap-1">Repository <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: PUBLICATIONS & PATENTS EXPLORER -->
+    <section id="research-papers" class="space-y-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="text-3xl font-bold text-white flex items-center gap-3">
+            <i class="fa-solid fa-book-bookmark text-neonGreen"></i> Publications & Patents
+          </h3>
+          <p class="text-slate-400 text-sm mt-1">Under-review journal manuscripts, patents, and technical breakthroughs.</p>
+        </div>
+        
+        <!-- Filter Tags -->
+        <div class="flex flex-wrap gap-2 mt-4 md:mt-0 font-mono text-xs">
+          <button onclick="filterPapers('all')" class="paper-filter-btn px-3 py-1.5 rounded-lg bg-cyan-500/20 text-neonCyan border border-cyan-500/40">All</button>
+          <button onclick="filterPapers('Agentic AI')" class="paper-filter-btn px-3 py-1.5 rounded-lg glass-card text-slate-400">Agentic AI</button>
+          <button onclick="filterPapers('Quantum ML')" class="paper-filter-btn px-3 py-1.5 rounded-lg glass-card text-slate-400">Quantum ML</button>
+          <button onclick="filterPapers('Bio-Tech')" class="paper-filter-btn px-3 py-1.5 rounded-lg glass-card text-slate-400">Bio-Tech</button>
+          <button onclick="filterPapers('Accessibility')" class="paper-filter-btn px-3 py-1.5 rounded-lg glass-card text-slate-400">Accessibility</button>
+        </div>
+      </div>
+
+      <!-- Grid of Research Papers -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="papers-grid">
+        
+        <!-- Paper 1: VisionAgent Multi-Agent Systems -->
+        <div class="paper-card glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4" data-tags="Agentic AI Accessibility">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-neonCyan bg-cyan-950 px-2 py-0.5 rounded border border-cyan-500/30">Universal Access in Info Society</span>
+              <span class="text-xs font-mono text-slate-400">Under Review (2026)</span>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-neonCyan transition cursor-pointer" onclick="openPaperModal(0)">
+              VisionAgent: A Swarm of Multi-Agent Systems for Interactive Scene Understanding & Accessibility
+            </h4>
+            <p class="text-slate-300 text-sm line-clamp-2">
+              Autonomous multi-agent architecture coordinating computer vision tasks for visually impaired navigation and complex scene parsing.
+            </p>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs">
+            <span class="text-slate-400 font-mono">First Author • Amisha Singh</span>
+            <button onclick="openPaperModal(0)" class="text-neonCyan hover:underline font-mono">Inspect & BibTeX →</button>
+          </div>
+        </div>
+
+        <!-- Paper 2 -->
+        <div class="paper-card glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4" data-tags="Quantum ML">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-neonPurple bg-purple-950 px-2 py-0.5 rounded border border-purple-500/30">Discovery Quantum Science</span>
+              <span class="text-xs font-mono text-slate-400">Under Review (2026)</span>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-neonCyan transition cursor-pointer" onclick="openPaperModal(1)">
+              Quantum-Enhanced Natural Language Processing for Complex Semantic Reasoning
+            </h4>
+            <p class="text-slate-300 text-sm line-clamp-2">
+              Leveraging parameter-efficient variational quantum circuits combined with classical transformer embeddings for semantic inference.
+            </p>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs">
+            <span class="text-slate-400 font-mono">Primary Researcher • Amisha Singh</span>
+            <button onclick="openPaperModal(1)" class="text-neonCyan hover:underline font-mono">Inspect & BibTeX →</button>
+          </div>
+        </div>
+
+        <!-- Paper 3 -->
+        <div class="paper-card glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4" data-tags="Bio-Tech">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-neonGreen bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">Sustainable AI Journal</span>
+              <span class="text-xs font-mono text-slate-400">Under Review (2026)</span>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-neonCyan transition cursor-pointer" onclick="openPaperModal(2)">
+              ALVORA: Micro-Algae Carbon Capture & Bio-Filtered Air Purification Modeling
+            </h4>
+            <p class="text-slate-300 text-sm line-clamp-2">
+              Integrated physical-AI simulation framework for optimizing Chlorella vulgaris density and dynamic air intake for maximum carbon sequestration.
+            </p>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs">
+            <span class="text-slate-400 font-mono">Lead Inventor • Amisha Singh</span>
+            <button onclick="openPaperModal(2)" class="text-neonCyan hover:underline font-mono">Inspect & BibTeX →</button>
+          </div>
+        </div>
+
+        <!-- Paper 4 -->
+        <div class="paper-card glass-card p-6 rounded-2xl border border-slate-800 flex flex-col justify-between space-y-4" data-tags="Agentic AI">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono text-amber-400 bg-amber-950 px-2 py-0.5 rounded border border-amber-500/30">Discovery AI</span>
+              <span class="text-xs font-mono text-slate-400">Under Review (2026)</span>
+            </div>
+            <h4 class="text-xl font-bold text-white hover:text-neonCyan transition cursor-pointer" onclick="openPaperModal(3)">
+              LowRes-EffTransNAS: Neural Architecture Search for Edge Vision Transformers
+            </h4>
+            <p class="text-slate-300 text-sm line-clamp-2">
+              Multi-objective Pareto architecture search delivering high-accuracy visual recognition on low-resolution micro-edge hardware.
+            </p>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-xs">
+            <span class="text-slate-400 font-mono">Lead Author • Amisha Singh</span>
+            <button onclick="openPaperModal(3)" class="text-neonCyan hover:underline font-mono">Inspect & BibTeX →</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PATENTS SECTION -->
+      <div id="patents-section" class="pt-6 space-y-4">
+        <h4 class="text-xl font-bold text-white font-mono flex items-center gap-2">
+          <i class="fa-solid fa-award text-amber-400"></i> Intellectual Property & Patents
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="glass-panel p-5 rounded-xl border-l-4 border-l-emerald-400 space-y-2">
+            <div class="flex justify-between items-center text-xs font-mono">
+              <span class="text-neonGreen">App No. 202611066825</span>
+              <span class="text-slate-400">Patent Granted / Filed</span>
+            </div>
+            <h5 class="text-lg font-bold text-white">ALVORA - Air Purification Bio-System</h5>
+            <p class="text-xs text-slate-300">An intelligent bio-purification device utilizing optimized micro-algae growth chambers and automated fluidic air scrubbing algorithms.</p>
+          </div>
+
+          <div class="glass-panel p-5 rounded-xl border-l-4 border-l-cyan-400 space-y-2">
+            <div class="flex justify-between items-center text-xs font-mono">
+              <span class="text-neonCyan">App Patent Filed</span>
+              <span class="text-slate-400">Architectural IP</span>
+            </div>
+            <h5 class="text-lg font-bold text-white">Centralized Algae Building System</h5>
+            <p class="text-xs text-slate-300">Integrated structural bio-reactors for smart skyscraper facades, reducing building HVAC carbon footprint via continuous photosynthetic filtration.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 4: EXPERIENCE, EDUCATION & HONORS MATRIX -->
+    <section id="experience-section" class="space-y-8">
+      <div class="border-b border-slate-800 pb-4">
+        <h3 class="text-3xl font-bold text-white flex items-center gap-3">
+          <i class="fa-solid fa-graduation-cap text-neonPurple"></i> Experience & Academic Matrix
+        </h3>
+        <p class="text-slate-400 text-sm mt-1">Research internships, honors, hackathons, and academic background.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Experience Timeline -->
+        <div class="lg:col-span-2 space-y-6">
+          <h4 class="font-mono text-sm text-slate-400">RESEARCH & INDUSTRY EXPERIENCE</h4>
+          
+          <div class="space-y-4 relative border-l-2 border-slate-800 ml-4 pl-6">
+            
+            <div class="relative">
+              <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-cyan-400 border-4 border-cyberDark"></div>
+              <div class="glass-card p-5 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex justify-between text-xs font-mono">
+                  <span class="text-neonCyan">Lab Research Intern</span>
+                  <span class="text-slate-400">The NorthCap University</span>
+                </div>
+                <h5 class="font-bold text-white">Early Sepsis Identification Framework</h5>
+                <p class="text-xs text-slate-300">Under guidance of Dr. Pooja Sabherwal. Designed real-time clinical predictive models for physiological deterioration warning systems.</p>
+              </div>
+            </div>
+
+            <div class="relative">
+              <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-emerald-400 border-4 border-cyberDark"></div>
+              <div class="glass-card p-5 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex justify-between text-xs font-mono">
+                  <span class="text-neonGreen">AI / ML Intern</span>
+                  <span class="text-slate-400">Labmentix</span>
+                </div>
+                <h5 class="font-bold text-white">Deep Learning Model Optimization</h5>
+                <p class="text-xs text-slate-300">Researched parameter pruning and quantization for computer vision pipelines deployed on low-power devices.</p>
+              </div>
+            </div>
+
+            <div class="relative">
+              <div class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-400 border-4 border-cyberDark"></div>
+              <div class="glass-card p-5 rounded-xl border border-slate-800 space-y-2">
+                <div class="flex justify-between text-xs font-mono">
+                  <span class="text-neonPurple">AI Engineering Intern</span>
+                  <span class="text-slate-400">JD Engineering & Infosys Springboard</span>
+                </div>
+                <h5 class="font-bold text-white">Industrial Automation & Predictive Maintenance</h5>
+                <p class="text-xs text-slate-300">Implemented time-series anomaly detection algorithms for automated industrial manufacturing sensor data.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Academic & Skill Radar -->
+        <div class="space-y-6">
+          <h4 class="font-mono text-sm text-slate-400">HONORS & ACADEMICS</h4>
+
+          <div class="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+              <h5 class="font-bold text-white">The NorthCap University</h5>
+              <span class="text-xs font-mono text-neonCyan">2023 - 2027</span>
+            </div>
+            <p class="text-xs text-slate-300 font-mono">B.Tech Computer Science Engineering</p>
+            <div class="inline-block px-2.5 py-1 rounded bg-cyan-950/80 text-neonCyan border border-cyan-500/30 text-xs font-mono font-semibold">
+              Specialization: Artificial Intelligence & Machine Learning (AI/ML)
+            </div>
+          </div>
+
+          <!-- Honors List -->
+          <div class="glass-panel p-5 rounded-xl border border-slate-800 space-y-3">
+            <h5 class="font-bold text-white text-sm font-mono flex items-center gap-2">
+              <i class="fa-solid fa-trophy text-amber-400"></i> Key Achievements
+            </h5>
+            <ul class="text-xs text-slate-300 space-y-2 font-mono">
+              <li class="flex items-start gap-2">
+                <span class="text-neonGreen">✓</span> SIH 2025 National Finalist & Rank 1 Inter-College
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-neonCyan">✓</span> AWS AI & ML Scholar Recipient
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-neonPurple">✓</span> Top 0.3% HackGround (Rank Top 10)
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400">✓</span> IIT Guwahati ML Summer Analytics (Top 20%)
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-teal-400">✓</span> Zero's Arena Most Innovative Solution
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 5: BUILT-IN GEMINI AI RESEARCH CO-PILOT -->
+    <section id="copilot-section" class="space-y-6">
+      <div class="glass-panel rounded-2xl p-6 md:p-8 border border-cyan-500/40 relative overflow-hidden">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+          <div>
+            <h3 class="text-2xl font-bold text-white flex items-center gap-3">
+              <i class="fa-solid fa-robot text-neonCyan"></i> Amisha's Gemini Research Co-Pilot
+            </h3>
+            <p class="text-slate-400 text-xs mt-1">Powered by Gemini 3 Flash. Inquire directly about Amisha's resume, patents, and papers.</p>
+          </div>
+
+          <!-- Audio Waveform Visualizer simulation -->
+          <div id="audio-visualizer" class="flex items-end space-x-1 h-8 px-4 py-1 bg-slate-900/80 rounded-xl border border-slate-800">
+            <div class="w-1 bg-neonCyan audio-bar rounded-full" style="animation-delay: 0.1s;"></div>
+            <div class="w-1 bg-neonGreen audio-bar rounded-full" style="animation-delay: 0.3s;"></div>
+            <div class="w-1 bg-neonPurple audio-bar rounded-full" style="animation-delay: 0.2s;"></div>
+            <div class="w-1 bg-cyan-400 audio-bar rounded-full" style="animation-delay: 0.4s;"></div>
+            <div class="w-1 bg-emerald-400 audio-bar rounded-full" style="animation-delay: 0.15s;"></div>
+          </div>
+        </div>
+
+        <!-- Chat Output Terminal -->
+        <div id="ai-chat-box" class="my-6 min-h-[160px] max-h-[300px] overflow-y-auto space-y-3 font-mono text-xs p-4 bg-slate-950/80 rounded-xl border border-slate-800">
+          <div class="text-slate-400 flex items-start gap-2">
+            <span class="text-neonCyan font-bold">[Gemini AI]:</span>
+            <span>Hello! I am Amisha's AI Research Assistant. Ask me anything regarding her research papers, ALVORA patent, or technical skill set!</span>
+          </div>
+        </div>
+
+        <!-- Preset Quick Query Buttons -->
+        <div class="flex flex-wrap gap-2 mb-4 font-mono text-xs">
+          <button onclick="sendPresetPrompt('Explain the ALVORA patent and how it works.')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-neonCyan hover:border-cyan-500 transition">
+            "Explain ALVORA patent"
+          </button>
+          <button onclick="sendPresetPrompt('Summarize Amisha\'s paper on VisionAgent Swarm AI.')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-neonGreen hover:border-emerald-500 transition">
+            "VisionAgent Paper summary"
+          </button>
+          <button onclick="sendPresetPrompt('What are her top hackathon achievements and awards?')" class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-slate-300 hover:text-neonPurple hover:border-purple-500 transition">
+            "Key Honors & Awards"
+          </button>
+        </div>
+
+        <!-- Input Box -->
+        <div class="flex gap-2">
+          <input type="text" id="ai-input" placeholder="Ask Gemini AI about Amisha's research..." onkeydown="if(event.key === 'Enter') queryGeminiAI()" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-cyan-400 font-mono">
+          <button onclick="queryGeminiAI()" class="bg-gradient-to-r from-cyan-500 to-emerald-400 hover:from-cyan-400 hover:to-emerald-300 text-slate-950 font-bold px-6 py-3 rounded-xl flex items-center gap-2 transition font-mono text-xs">
+            Send Query <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="pt-12 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 font-mono gap-4">
+      <div>
+        © 2026 Amisha Singh • Designed for High-Performance AI Research
+      </div>
+      <div class="flex space-x-6">
+        <a href="mailto:amishasinoban@gmail.com" class="hover:text-neonCyan">amishasinoban@gmail.com</a>
+        <a href="https://linkedin.com/in/amishas-149515281" target="_blank" class="hover:text-neonCyan">LinkedIn</a>
+        <a href="https://github.com/amisha-sinobann" target="_blank" class="hover:text-neonCyan">GitHub</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- HACKER TERMINAL OVERLAY -->
+  <div id="terminal-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-3xl glass-panel rounded-2xl border border-cyan-500/50 overflow-hidden shadow-2xl">
+      <div class="bg-slate-900 px-4 py-3 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-2">
+          <span class="w-3 h-3 rounded-full bg-red-500 inline-block cursor-pointer" onclick="toggleTerminal()"></span>
+          <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+          <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+          <span class="text-xs font-mono text-slate-400 ml-2">amisha@research-lab:~ (CLI)</span>
+        </div>
+        <button onclick="toggleTerminal()" class="text-slate-400 hover:text-white text-xs font-mono">ESC / [X]</button>
+      </div>
+      
+      <div id="terminal-body" class="p-4 h-96 overflow-y-auto font-mono text-xs text-neonGreen bg-slate-950/90 space-y-2">
+        <div>Welcome to Amisha Singh's CLI Terminal v2.6. Type <span class="text-neonCyan font-bold">'help'</span> for commands.</div>
+      </div>
+
+      <div class="p-3 bg-slate-900 flex items-center gap-2 border-t border-slate-800 font-mono text-xs">
+        <span class="text-neonCyan">amisha@lab:~$</span>
+        <input type="text" id="terminal-input" onkeydown="handleTerminalCmd(event)" class="flex-1 bg-transparent border-none text-white focus:outline-none" autofocus>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAPER INSPECT MODAL -->
+  <div id="paper-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl glass-panel rounded-2xl border border-cyan-500/40 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-start">
+        <span id="modal-journal" class="text-xs font-mono text-neonCyan bg-cyan-950 px-2 py-1 rounded border border-cyan-500/30">Journal</span>
+        <button onclick="closePaperModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <h4 id="modal-title" class="text-2xl font-bold text-white">Paper Title</h4>
+      <p id="modal-authors" class="text-xs font-mono text-slate-400">Authors: Amisha Singh, et al.</p>
+
+      <div class="space-y-2">
+        <h5 class="text-xs font-mono text-neonGreen">ABSTRACT</h5>
+        <p id="modal-abstract" class="text-xs text-slate-300 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono">Abstract text...</p>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex justify-between items-center">
+          <h5 class="text-xs font-mono text-neonPurple">BIBTEX CITATION</h5>
+          <button onclick="copyBibtex()" class="text-xs text-neonCyan hover:underline font-mono"><i class="fa-solid fa-copy"></i> Copy BibTeX</button>
+        </div>
+        <textarea id="modal-bibtex" readonly class="w-full h-24 bg-slate-950 text-slate-400 font-mono text-[11px] p-3 rounded-xl border border-slate-800 resize-none focus:outline-none"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & THREE.JS ENGINE -->
+  <script>
+    // --- 1. WEB AUDIO SYNTHESIZER (SFX) ---
+    class SoundManager {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+      init() {
+        if (!this.ctx) {
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+      }
+      play(type) {
+        if (this.muted) return;
+        this.init();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        const now = this.ctx.currentTime;
+        if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, now);
+          osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+          osc.start(now);
+          osc.stop(now + 0.05);
+        } else if (type === 'hover') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(400, now);
+          osc.frequency.exponentialRampToValueAtTime(600, now + 0.03);
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+          osc.start(now);
+          osc.stop(now + 0.03);
+        } else if (type === 'ai') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, now); // C5
+          osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        }
+      }
+      toggleMute() {
+        this.muted = !this.muted;
+        const icon = document.getElementById('sound-icon');
+        icon.className = this.muted ? 'fa-solid fa-volume-xmark text-sm text-red-400' : 'fa-solid fa-volume-high text-sm text-neonCyan';
+      }
+    }
+    const sfx = new SoundManager();
+
+    // --- 2. THREE.JS 3D WORLD ENGINE ---
+    let scene, camera, renderer, modeGroup;
+    let currentMode = 'grid';
+    let mouse = new THREE.Vector2(), raycaster = new THREE.Raycaster();
+
+    function init3D() {
+      const container = document.getElementById('bg-canvas');
+      scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x070b14, 0.015);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 0, 45);
+
+      renderer = new THREE.WebGLRenderer({ canvas: container, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      modeGroup = new THREE.Group();
+      scene.add(modeGroup);
+
+      // Lights
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      const pointLight = new THREE.PointLight(0x00f3ff, 2, 100);
+      pointLight.position.set(10, 20, 20);
+      scene.add(pointLight);
+
+      buildGridMode();
+
+      // Listeners
+      window.addEventListener('resize', onWindowResize);
+      window.addEventListener('mousemove', onMouseMove);
+      container.addEventListener('click', onCanvasClick);
+
+      animate();
+    }
+
+    // MODE 1: Quantum Neural Grid
+    function buildGridMode() {
+      clearModeGroup();
+      const geom = new THREE.BufferGeometry();
+      const count = 300;
+      const positions = new Float32Array(count * 3);
+      for(let i=0; i<count*3; i+=3) {
+        positions[i] = (Math.random() - 0.5) * 100;
+        positions[i+1] = (Math.random() - 0.5) * 100;
+        positions[i+2] = (Math.random() - 0.5) * 100;
+      }
+      geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      const mat = new THREE.PointsMaterial({ color: 0x00f3ff, size: 0.8, transparent: true, opacity: 0.8 });
+      const points = new THREE.Points(geom, mat);
+      modeGroup.add(points);
+    }
+
+    // MODE 2: Bio-Algae Micro-Simulation
+    function buildAlgaeMode() {
+      clearModeGroup();
+      const count = 120;
+      const algaeGeom = new THREE.SphereGeometry(0.6, 16, 16);
+      const algaeMat = new THREE.MeshStandardMaterial({
+        color: 0x00ffaa,
+        emissive: 0x004422,
+        roughness: 0.2,
+        metalness: 0.8
+      });
+      for(let i=0; i<count; i++) {
+        const mesh = new THREE.Mesh(algaeGeom, algaeMat);
+        mesh.position.set((Math.random()-0.5)*80, (Math.random()-0.5)*80, (Math.random()-0.5)*60);
+        mesh.userData = { speed: Math.random()*0.02+0.005, floatOffset: Math.random()*Math.PI*2 };
+        modeGroup.add(mesh);
+      }
+    }
+
+    // MODE 3: Multi-Agent Swarm
+    function buildSwarmMode() {
+      clearModeGroup();
+      const count = 40;
+      const agentGeom = new THREE.OctahedronGeometry(0.9, 0);
+      const agentMat = new THREE.MeshStandardMaterial({ color: 0x9d4edd, wireframe: true });
+      for(let i=0; i<count; i++) {
+        const mesh = new THREE.Mesh(agentGeom, agentMat);
+        mesh.position.set((Math.random()-0.5)*60, (Math.random()-0.5)*60, (Math.random()-0.5)*40);
+        mesh.userData = { orbitSpeed: Math.random()*0.01+0.005, radius: Math.random()*30+10 };
+        modeGroup.add(mesh);
+      }
+    }
+
+    function clearModeGroup() {
+      while(modeGroup.children.length > 0) {
+        modeGroup.remove(modeGroup.children[0]);
+      }
+    }
+
+    function change3DMode(mode) {
+      sfx.play('click');
+      currentMode = mode;
+      document.getElementById('btn-mode-grid').className = mode === 'grid' ? 'px-2.5 py-1 rounded-lg bg-cyan-500/20 text-neonCyan font-mono transition' : 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-mono transition';
+      document.getElementById('btn-mode-algae').className = mode === 'algae' ? 'px-2.5 py-1 rounded-lg bg-emerald-500/20 text-neonGreen font-mono transition' : 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-mono transition';
+      document.getElementById('btn-mode-swarm').className = mode === 'swarm' ? 'px-2.5 py-1 rounded-lg bg-purple-500/20 text-neonPurple font-mono transition' : 'px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-mono transition';
+
+      if(mode === 'grid') buildGridMode();
+      else if(mode === 'algae') buildAlgaeMode();
+      else if(mode === 'swarm') buildSwarmMode();
+    }
+
+    function onMouseMove(e) {
+      mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+      // Subtle parallax tilt
+      camera.position.x += (mouse.x * 5 - camera.position.x) * 0.05;
+      camera.position.y += (-mouse.y * 5 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+    }
+
+    function onCanvasClick() {
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(modeGroup.children);
+      if(intersects.length > 0) {
+        sfx.play('click');
+        const obj = intersects[0].object;
+        obj.scale.set(1.8, 1.8, 1.8);
+        setTimeout(() => obj.scale.set(1, 1, 1), 400);
+      }
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = Date.now() * 0.001;
+
+      if(currentMode === 'algae') {
+        modeGroup.children.forEach(child => {
+          child.position.y += Math.sin(time + child.userData.floatOffset) * 0.02;
+        });
+      } else if(currentMode === 'swarm') {
+        modeGroup.children.forEach((child, idx) => {
+          child.rotation.x += 0.01;
+          child.rotation.y += 0.02;
+        });
+      } else {
+        modeGroup.rotation.y = time * 0.05;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    function resetCamera() {
+      camera.position.set(0, 0, 45);
+    }
+
+    // --- 3. LAB SIMULATORS LOGIC ---
+    let alvoraChartInstance = null;
+
+    function initAlvoraChart() {
+      const ctx = document.getElementById('alvoraChart').getContext('2d');
+      alvoraChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['0s', '5s', '10s', '15s', '20s', '25s'],
+          datasets: [
+            { label: 'Air Purified (AQI)', data: [120, 85, 45, 28, 20, 18], borderColor: '#00ffaa', tension: 0.4 },
+            { label: 'CO2 Capture Rate (mg/h)', data: [20, 45, 65, 82, 91, 94], borderColor: '#00f3ff', tension: 0.4 }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#94a3b8', font: { family: 'Fira Code' } } } },
+          scales: {
+            x: { ticks: { color: '#64748b' }, grid: { color: '#1e293b' } },
+            y: { ticks: { color: '#64748b' }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+    }
+
+    function updateAlvoraSim() {
+      const air = parseInt(document.getElementById('slider-airflow').value);
+      const co2 = parseInt(document.getElementById('slider-co2').value);
+      const density = parseInt(document.getElementById('slider-density').value);
+
+      document.getElementById('val-airflow').innerText = air;
+      document.getElementById('val-co2').innerText = co2;
+      document.getElementById('val-density').innerText = density + '%';
+
+      // Computed metrics
+      const aqiOut = Math.max(10, Math.round(150 - (density * 1.2) + (air * 0.2)));
+      const captureRate = ((co2 * density * air) / 8000).toFixed(1);
+      const efficiency = (Math.min(99.4, 60 + (density * 0.35))).toFixed(1);
+
+      document.getElementById('out-aqi').innerText = `${aqiOut} AQI (Optimal)`;
+      document.getElementById('out-capture').innerText = `${captureRate} mg/hr`;
+      document.getElementById('out-efficiency').innerText = `${efficiency}%`;
+
+      // Update Chart
+      if(alvoraChartInstance) {
+        alvoraChartInstance.data.datasets[0].data = [140, 95, 60, aqiOut + 15, aqiOut + 5, aqiOut];
+        alvoraChartInstance.data.datasets[1].data = [10, 30, 50, captureRate*0.7, captureRate*0.9, captureRate];
+        alvoraChartInstance.update();
+      }
+    }
+
+    function switchLabTab(tab) {
+      sfx.play('click');
+      document.getElementById('sim-alvora').classList.add('hidden');
+      document.getElementById('sim-vision').classList.add('hidden');
+      document.getElementById('sim-nas').classList.add('hidden');
+
+      document.getElementById('tab-btn-alvora').className = 'px-4 py-2 rounded-xl glass-card text-slate-400 hover:text-white';
+      document.getElementById('tab-btn-vision').className = 'px-4 py-2 rounded-xl glass-card text-slate-400 hover:text-white';
+      document.getElementById('tab-btn-nas').className = 'px-4 py-2 rounded-xl glass-card text-slate-400 hover:text-white';
+
+      if(tab === 'alvora') {
+        document.getElementById('sim-alvora').classList.remove('hidden');
+        document.getElementById('tab-btn-alvora').className = 'px-4 py-2 rounded-xl bg-cyan-500/20 text-neonCyan border border-cyan-500/40';
+      } else if(tab === 'vision') {
+        document.getElementById('sim-vision').classList.remove('hidden');
+        document.getElementById('tab-btn-vision').className = 'px-4 py-2 rounded-xl bg-emerald-500/20 text-neonGreen border border-emerald-500/40';
+        renderVisionSim();
+      } else if(tab === 'nas') {
+        document.getElementById('sim-nas').classList.remove('hidden');
+        document.getElementById('tab-btn-nas').className = 'px-4 py-2 rounded-xl bg-purple-500/20 text-neonPurple border border-purple-500/40';
+        updateNAS();
+      }
+    }
+
+    function renderVisionSim() {
+      const ocr = document.getElementById('agent-ocr').checked;
+      const detect = document.getElementById('agent-detect').checked;
+      const nav = document.getElementById('agent-nav').checked;
+
+      const overlay = document.getElementById('vision-overlays');
+      overlay.innerHTML = '';
+
+      if(detect) {
+        overlay.innerHTML += `<div class="absolute top-12 left-16 w-36 h-28 border-2 border-emerald-400 bg-emerald-500/10 rounded p-1 font-mono text-[10px] text-neonGreen">[Agent B]: Bio-Tank (99.4%)</div>`;
+      }
+      if(ocr) {
+        overlay.innerHTML += `<div class="absolute bottom-10 right-16 w-40 h-14 border-2 border-cyan-400 bg-cyan-500/10 rounded p-1 font-mono text-[10px] text-neonCyan">[Agent A]: OCR Text Recognized</div>`;
+      }
+      if(nav) {
+        overlay.innerHTML += `<div class="absolute top-6 right-8 text-neonPurple font-mono text-[10px] animate-pulse">↗ Spatial Vector: NavClear</div>`;
+      }
+    }
+
+    function updateNAS() {
+      const heads = parseInt(document.getElementById('nas-heads').value);
+      const layers = parseInt(document.getElementById('nas-layers').value);
+      const embed = parseInt(document.getElementById('nas-embed').value);
+
+      document.getElementById('nas-heads-val').innerText = heads;
+      document.getElementById('nas-layers-val').innerText = layers;
+      document.getElementById('nas-embed-val').innerText = embed;
+
+      const params = ((heads * layers * embed * 150) / 1000000).toFixed(1);
+      const lat = (layers * 1.4 + heads * 0.3).toFixed(1);
+      const acc = Math.min(96.5, (85 + layers * 0.8 + heads * 0.4)).toFixed(1);
+      const ram = ((params * 4.2)).toFixed(1);
+
+      document.getElementById('nas-out-params').innerText = params + 'M';
+      document.getElementById('nas-out-lat').innerText = lat + ' ms';
+      document.getElementById('nas-out-acc').innerText = acc + '%';
+      document.getElementById('nas-out-ram').innerText = ram + ' MB';
+    }
+
+    // --- 4. PUBLICATIONS MODAL & FILTERS ---
+    const papersData = [
+      {
+        title: "VisionAgent: A Swarm of Multi-Agent Systems for Interactive Scene Understanding & Accessibility",
+        journal: "Universal Access in Info Society",
+        authors: "Amisha Singh, et al.",
+        abstract: "Autonomous multi-agent architecture coordinating computer vision tasks for visually impaired navigation, interactive scene parsing, and real-time environment description.",
+        bibtex: `@article{singh2026visionagent,\n  title={VisionAgent: A Swarm of Multi-Agent Systems for Interactive Scene Understanding & Accessibility},\n  author={Singh, Amisha et al.},\n  journal={Universal Access in the Information Society},\n  year={2026}\n}`
+      },
+      {
+        title: "Quantum-Enhanced Natural Language Processing for Complex Semantic Reasoning",
+        journal: "Discovery Quantum Science",
+        authors: "Amisha Singh, et al.",
+        abstract: "We investigate parameter-efficient variational quantum circuits (VQCs) integrated with classical Transformer embeddings to accelerate semantic entailment and disambiguation tasks in large-scale natural language processing models.",
+        bibtex: `@article{singh2026quantum,\n  title={Quantum-Enhanced Natural Language Processing for Complex Semantic Reasoning},\n  author={Singh, Amisha et al.},\n  journal={Discovery Quantum Science},\n  year={2026}\n}`
+      },
+      {
+        title: "ALVORA: Micro-Algae Carbon Capture & Bio-Filtered Air Purification Modeling",
+        journal: "Sustainable AI Journal",
+        authors: "Amisha Singh",
+        abstract: "ALVORA introduces a closed-loop bio-computational fluid dynamic simulator for optimizing Chlorella vulgaris cultivation and carbon sequestration efficiency in automated urban air purification units.",
+        bibtex: `@article{singh2026alvora,\n  title={ALVORA: Micro-Algae Carbon Capture & Bio-Filtered Air Purification Modeling},\n  author={Singh, Amisha},\n  journal={Sustainable AI Journal},\n  year={2026}\n}`
+      },
+      {
+        title: "LowRes-EffTransNAS: Neural Architecture Search for Edge Vision Transformers",
+        journal: "Discovery AI",
+        authors: "Amisha Singh",
+        abstract: "We formulate a multi-objective Pareto optimization framework tailored for discovering ultra-lightweight vision transformer topologies on constrained IoT microcontrollers without compromising classification fidelity.",
+        bibtex: `@article{singh2026lowres,\n  title={LowRes-EffTransNAS: Neural Architecture Search for Edge Vision Transformers},\n  author={Singh, Amisha},\n  journal={Discovery AI},\n  year={2026}\n}`
+      }
+    ];
+
+    function filterPapers(tag) {
+      sfx.play('click');
+      const cards = document.querySelectorAll('.paper-card');
+      cards.forEach(card => {
+        if(tag === 'all' || card.dataset.tags.includes(tag)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    function openPaperModal(idx) {
+      sfx.play('click');
+      const p = papersData[idx];
+      document.getElementById('modal-title').innerText = p.title;
+      document.getElementById('modal-journal').innerText = p.journal;
+      document.getElementById('modal-authors').innerText = "Authors: " + p.authors;
+      document.getElementById('modal-abstract').innerText = p.abstract;
+      document.getElementById('modal-bibtex').value = p.bibtex;
+      document.getElementById('paper-modal').classList.remove('hidden');
+    }
+
+    function closePaperModal() {
+      sfx.play('click');
+      document.getElementById('paper-modal').classList.add('hidden');
+    }
+
+    function copyBibtex() {
+      const copyText = document.getElementById('modal-bibtex');
+      copyText.select();
+      document.execCommand('copy');
+      sfx.play('ai');
+      alert('BibTeX citation copied to clipboard!');
+    }
+
+    // --- 5. GEMINI AI INTEGRATION ---
+    async function queryGeminiAI() {
+      const inputEl = document.getElementById('ai-input');
+      const prompt = inputEl.value.trim();
+      if(!prompt) return;
+
+      sfx.play('click');
+      const chatBox = document.getElementById('ai-chat-box');
+      chatBox.innerHTML += `<div class="text-white flex items-start gap-2"><span class="text-neonGreen font-bold">[You]:</span> <span>${prompt}</span></div>`;
+      inputEl.value = '';
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      const loadingId = 'loading-' + Date.now();
+      chatBox.innerHTML += `<div id="${loadingId}" class="text-slate-500 animate-pulse font-mono">[Gemini AI]: Querying neural context weights...</div>`;
+
+      const systemPrompt = `You are the official AI Research Assistant for Amisha Singh.
+Amisha's Bio & Resume Summary:
+- Specialization: Artificial Intelligence & Machine Learning (AI/ML).
+- Degree: B.Tech Computer Science Engineering with Specialization in AI & ML at The NorthCap University (2023-2027).
+- Patents: ALVORA (Bio-Algae Air Purifier, App No 202611066825) and Centralized Algae Building System.
+- Research Papers Under Review: Universal Access in Info Society (x2), Sustainable AI Journal, Discovery Quantum Science, Discovery AI.
+- Experience: Lab Research Intern (The NorthCap Univ - Sepsis framework under Dr. Pooja Sabherwal), Labmentix (Deep learning), Infosys Springboard & JD Engineering.
+- Honors: SIH 2025 National Finalist & Rank 1 Inter-College, AWS AI Scholar, HackGround Top 10 (top 0.3%).
+Answer user queries in a concise, authoritative sci-fi AI researcher persona (max 3 sentences).`;
+
+      try {
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] }
+          })
+        });
+
+        const data = await response.json();
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Response generated based on Amisha's research archive.";
+
+        document.getElementById(loadingId).remove();
+        chatBox.innerHTML += `<div class="text-slate-300 flex items-start gap-2"><span class="text-neonCyan font-bold">[Gemini AI]:</span> <span>${reply}</span></div>`;
+        sfx.play('ai');
+      } catch(err) {
+        document.getElementById(loadingId).remove();
+        chatBox.innerHTML += `<div class="text-red-400 font-mono">[System Error]: Connection issue with Gemini endpoint. Amisha's patents include ALVORA bio-purifier and multi-agent vision systems!</div>`;
+      }
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function sendPresetPrompt(text) {
+      document.getElementById('ai-input').value = text;
+      queryGeminiAI();
+    }
+
+    // --- 6. HACKER CLI TERMINAL ---
+    function toggleTerminal() {
+      sfx.play('click');
+      const modal = document.getElementById('terminal-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    function handleTerminalCmd(e) {
+      if(e.key === 'Enter') {
+        const input = e.target.value.trim().toLowerCase();
+        e.target.value = '';
+        const body = document.getElementById('terminal-body');
+
+        body.innerHTML += `<div class="text-white">amisha@lab:~$ ${input}</div>`;
+
+        let resp = '';
+        if(input === 'help') {
+          resp = `Available CLI Commands:
+ - projects: List major engineering software projects
+ - patents : View granted/filed patent numbers
+ - papers  : List papers under review
+ - skills  : Display core technical stack
+ - contact : Print email & social endpoints
+ - clear   : Clear terminal output`;
+        } else if(input === 'projects') {
+          resp = `1. VisionAgent Swarm Platform (Python/PyTorch Multi-Agent)\n2. ALVORA Bio-Control Engine (Hardware-in-the-Loop Simulator)\n3. Quantum Semantic Disambiguator (Hybrid Qiskit NLP)`;
+        } else if(input === 'patents') {
+          resp = `1. ALVORA Air Purification Bio-System (App No. 202611066825)\n2. Centralized Algae Building System`;
+        } else if(input === 'papers') {
+          resp = `1. VisionAgent (Universal Access in Info Society)\n2. Quantum NLP (Discovery Quantum Science)\n3. ALVORA Modeling (Sustainable AI Journal)`;
+        } else if(input === 'skills') {
+          resp = `Core Stack: Multi-Agent AI, PyTorch, Three.js, Quantum Circuits, Vision Transformers, Embedded C++`;
+        } else if(input === 'contact') {
+          resp = `Email: amishasinoban@gmail.com | LinkedIn: linkedin.com/in/amishas-149515281`;
+        } else if(input === 'clear') {
+          body.innerHTML = '';
+          return;
+        } else {
+          resp = `Command not recognized. Type 'help' for options.`;
+        }
+
+        body.innerHTML += `<div class="text-slate-400">${resp}</div>`;
+        body.scrollTop = body.scrollHeight;
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if(e.key === '`') toggleTerminal();
+    });
+
+    function scrollToSection(id) {
+      sfx.play('click');
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Initialization on window load
+    window.onload = function() {
+      init3D();
+      initAlvoraChart();
+    };
+  </script>
+</body>
+</html>
